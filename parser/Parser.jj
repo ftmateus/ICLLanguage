@@ -1,0 +1,90 @@
+PARSER_BEGIN(Parser)
+
+package parser;
+
+import ast.*;
+import com.*;
+import java.util.ArrayList;
+import java.util.List;
+
+/** ID lister. */
+public class Parser {
+
+  	
+
+}
+
+PARSER_END(Parser)
+
+SKIP:
+{
+  " "
+| "\t"
+| "\r"
+}
+
+
+TOKEN: {
+  < Num: (["0"-"9"])+ >
+| < DECL: "def" >
+| < IN: "in" >
+| < END: "end" >
+| < Id: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","0"-"9"] )* >
+| < PLUS: "+" >
+| < MINUS: "-" >
+| < DIV: "/" >
+| < TIMES: "*" >
+| < ASSIGN: "=" >
+| < EQ: "==" >
+| < LE: "<=" >
+| < LT: "<" >
+| < GT: ">" >
+| < GE: " >=" >
+| < LPAR: "(" >
+| < RPAR: ")" >
+| < EL: "\n" >
+}
+
+
+ASTNode Start(): {ASTNode t;}
+{
+  t = Exp() <EL>
+  { return t;}
+}
+
+ASTNode Exp(): {ASTNode t1, t2; Token op;}
+{
+  t1 = Term() ( (op = < MINUS > | op=< PLUS >) t2 = Term()
+  	{ if (op.kind == MINUS)
+  	    t1 = new ASTSub(t1,t2);
+  	  else t1 = new ASTPlus(t1,t2); } ) *
+  {	return t1; }
+}
+
+ASTNode Term(): {ASTNode t1, t2; Token op;}
+{
+	t1 = Fact() ( (op = < TIMES >|op = < DIV >) t2 = Fact()
+	{
+	  if(op.kind == TIMES)
+	  	t1 = new ASTTimes(t1,t2);
+	  else
+	  	t1 = new ASTDiv(t1,t2); } )*
+  { return t1; }
+  
+}
+
+
+ASTNode Fact(): {
+  ASTNode t, t1, t2;
+  Token n;
+  List<Binding> bindings = new ArrayList<Binding>();
+}
+{
+  n=<Num> {return new ASTNum(Integer.parseInt(n.image)); }
+| < LPAR > t = Exp() <RPAR > { return t; }
+| < MINUS > t = Fact() { return new ASTTimes(new ASTNum(-1), t); }
+| < DECL > (n = < Id >< ASSIGN > t = Exp() { bindings.add(new Binding(n.image, t)); })+
+			< IN > t1 = Exp() < END > { return new ASTDef(bindings, t1); }
+| n = < Id > { return new ASTId(n.image); }
+}
+
