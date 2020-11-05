@@ -1,6 +1,9 @@
 package ast;
 
+import java.io.IOException;
+
 import com.CodeBlock;
+import com.CompilerFrame;
 import com.Environment;
 
 public class ASTPlus implements ASTNode {
@@ -19,9 +22,9 @@ public class ASTPlus implements ASTNode {
 	}
 
 	@Override
-	public void compile(CodeBlock c) {
-		lhs.compile(c);	
-		rhs.compile(c);	
+	public void compile(CodeBlock c, CompilerFrame cf) throws IOException {
+		lhs.compile(c, cf);	
+		rhs.compile(c, cf);	
 		c.emit("iadd");			
 	}
 
