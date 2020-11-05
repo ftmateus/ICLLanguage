@@ -53,11 +53,11 @@ public class CompilerFrame {
 		cmds.add("invokespecial frame_" + id + "/<init>()V");
 		cmds.add("dup");
 		if(parent != null && parent.getId() != null) {
-			cmds.add("aload 1");
+			cmds.add("aload_1");
 			cmds.add("putfield frame_" + id +"/SL Lframe_" + parent.getId() + ";");
 			cmds.add("dup");
 		}
-		cmds.add("astore 1");
+		cmds.add("astore_1");
 		cmds.add("dup");
 		
 		return cmds;
@@ -100,11 +100,11 @@ public class CompilerFrame {
 	public List<String> reset() {
 		List<String> cmds = new ArrayList<>();
 		if (parent.getId() != null) {
-			cmds.add("aload 1\t\t\t\t\t; Next 3ll: Get parent frame [" + parent.getId() + 
+			cmds.add("aload_1\t\t\t\t\t; Next 3ll: Get parent frame [" + parent.getId() + 
 					"] and store it into local var 1");
 			cmds.add("checkcast frame_" + id + "\t\t\t\t; Current frame stored in 1: " + id);
 			cmds.add("getfield frame_" + this.id + "/SL Lframe_" + parent.getId() + ";");
-			cmds.add("astore 1");
+			cmds.add("astore_1");
 		}
 		return cmds;
 

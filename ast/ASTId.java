@@ -23,7 +23,7 @@ public class ASTId implements ASTNode {
 
 	@Override
 	public void compile(CodeBlock c, CompilerFrame cf) throws IOException {
-		c.emit("aload 1");
+		c.emit("aload_1");
 		
 		List<Integer> levels = cf.findLevels(id);
 		
