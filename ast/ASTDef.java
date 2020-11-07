@@ -40,11 +40,11 @@ public class ASTDef implements ASTNode {
 		
 		c.emit(cf1.createFrame()); //save SL e astore
 		
-		int total = bindings.size();
-		for(int i = 0; i < total; i++) { 
-			Binding b = bindings.get(i);
-			if(i > 0)
-				c.emit("dup");
+		Binding first = bindings.remove(0);
+		first.getExp().compile(c, cf1);
+		c.emit(cf1.addVariable(first.getId()));
+		for(Binding b : bindings) {
+			c.emit("dup");
 			b.getExp().compile(c, cf1);
 			c.emit(cf1.addVariable(b.getId()));
 		}

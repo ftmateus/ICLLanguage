@@ -25,14 +25,7 @@ public class ASTId implements ASTNode {
 	public void compile(CodeBlock c, CompilerFrame cf) throws IOException {
 		c.emit("aload_1");
 		
-		List<Integer> levels = cf.findLevels(id);
-		
-		System.out.print(".ASTId, compile [APAGAR] : Levels for " + id + " > " );
-		for(Integer l : levels) {
-			System.out.print(l + " ");
-		}
-		System.out.println();
-		
+		List<Integer> levels = cf.findLevels(id);		
 		int current = levels.remove(0); 
 		c.emit("checkcast frame_" + current);
 		while(!levels.isEmpty()) {
