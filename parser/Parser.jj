@@ -83,6 +83,7 @@ ASTNode Fact(): {
   n=<Num> {return new ASTNum(Integer.parseInt(n.image)); }
 | < LPAR > t = Exp() <RPAR > { return t; }
 | < MINUS > t = Fact() { return new ASTTimes(new ASTNum(-1), t); }
+| < PLUS > t = Fact() { return t; }
 | < DECL > (n = < Id >< ASSIGN > t = Exp() { bindings.add(new Binding(n.image, t)); })+
 			< IN > t1 = Exp() < END > { return new ASTDef(bindings, t1); }
 | n = < Id > { return new ASTId(n.image); }
