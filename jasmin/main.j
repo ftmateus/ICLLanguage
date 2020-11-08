@@ -16,6 +16,8 @@
 	getstatic java/lang/System/out Ljava/io/PrintStream;
 
 	sipush 15
+	sipush 15
+	iadd
 
 	invokestatic java/lang/String/valueOf(I)Ljava/lang/String;
 	invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V

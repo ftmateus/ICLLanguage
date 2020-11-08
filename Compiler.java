@@ -72,7 +72,7 @@ public class Compiler {
 			exp.compile(c, new CompilerFrame());
 			c.finish();
 
-		 	//runProcessAndWait("java -jar " + jasmin_path + "jasmin.jar -d " + BIN_FILES_FOLDER + " jasmin/*.j", true);
+		 	runProcessAndWait("java -jar " + jasmin_path + "jasmin.jar -d " + BIN_FILES_FOLDER + " jasmin/*.j", true);
 
 			Process process = runProcessAndWait("java -cp comp main", false);
 
