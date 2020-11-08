@@ -25,7 +25,7 @@ public class CompilerFrame {
 	private CompilerFrame(CompilerFrame parent) throws IOException {
 		variables = new ArrayList<>();
 		this.parent = parent;
-		this.id = JasminUtils.counter.getAndIncrement();
+		this.id = JasminUtils.counter++;
 		fw = new FileWriter(CodeBlock.location + "frame_" + id + ".j", false);
 		init();
 	}
