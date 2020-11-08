@@ -1,7 +1,7 @@
 package exceptions;
 import java.lang.RuntimeException;
 
-public class IdNotDefinedException extends RuntimeException {
+public class IdNotDefinedException extends SyntaxException {
 
 	private static final long serialVersionUID = 1L;
 	

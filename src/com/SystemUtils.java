@@ -12,22 +12,23 @@ public class SystemUtils
 {
 
     public static final PrintStream debug;
-    public static final String OS = System.getProperty("os.name");
+    public static final String OS_NAME = System.getProperty("os.name");
     public static final String terminal;
 	public static final String terminal_options;
-	public static final String SLASH = System.getProperty("file.separator");
+	public static final String OS_SLASH = System.getProperty("file.separator");
+	public static final String DEBUG_OUT_FILE = "Debug.txt";
 
 	static 
 	{
 		PrintStream d;
 		try {
-			d = new PrintStream(new File("Debug.txt"));
+			d = new PrintStream(new File(DEBUG_OUT_FILE));
 		} catch (FileNotFoundException e) {
 			d = null;
 		}
         debug = d;
 
-		if (OS.contains("Windows")) 
+		if (OS_NAME.contains("Windows")) 
 		{
 			terminal = "cmd.exe";
 			terminal_options = "/C";
@@ -48,8 +49,9 @@ public class SystemUtils
 		return res;
 	}
 
-	public static Process runProcessAndWait(String cmd, boolean inheritIO)
+	public static Process runProcessAndWait(String cmd, boolean inheritIO) throws InterruptedException
     {
+		debug.println(cmd);
 		String[] bCMD = { terminal, terminal_options , cmd};
 
 		Process p = null;
@@ -58,7 +60,7 @@ public class SystemUtils
 			ProcessBuilder pb = new ProcessBuilder(bCMD);
 			pb.redirectErrorStream(true); 
 			if(inheritIO) 
-				pb.redirectOutput(Redirect.appendTo(new File("Debug.txt")));
+				pb.redirectOutput(Redirect.appendTo(new File(DEBUG_OUT_FILE)));
             p = pb.start();
             p.waitFor();
         } catch(Exception ex) {

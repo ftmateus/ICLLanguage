@@ -2,6 +2,8 @@
 import com.Environment;
 
 import ast.ASTNode;
+import exceptions.SyntaxException;
+import parser.ParseException;
 import parser.Parser;
 
 public class Interpreter {
@@ -17,10 +19,15 @@ public class Interpreter {
         		exp = parser.Start();
         		System.out.println("Result > " + exp.eval(env));
       		}
-      		catch (Exception e) {
+      		catch (SyntaxException | ParseException e) {
         		System.out.println("Syntax Error!" + e.toString());
         		parser.ReInit(System.in);
-      		}
+			  }
+			  catch (Exception e)
+			  {
+				  e.printStackTrace();
+				  break;
+			  }
     	}
   	}
 

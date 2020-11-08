@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class JasminUtils {
 
 	public static int counter = 0;
+
+	public static final String JASMIN_PATH = "src" + SystemUtils.OS_SLASH + "jasmin" + SystemUtils.OS_SLASH;
 	
 	public static void initMethod(FileWriter main) throws IOException {
 		main.write("\n\n.method public <init>()V");
