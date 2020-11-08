@@ -15,18 +15,7 @@
 
 	getstatic java/lang/System/out Ljava/io/PrintStream;
 
-	new frame_0					; Frame 0 started
-	dup
-	invokespecial frame_0/<init>()V
-	dup
-	astore 1
-	dup
-	sipush 1
-	putfield frame_0/x I
-	pop						; Frame 0 finished
-	aload 1
-	checkcast frame_0
-	getfield frame_0/x I
+	sipush 15
 
 	invokestatic java/lang/String/valueOf(I)Ljava/lang/String;
 	invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V

@@ -22,7 +22,7 @@ public class CompilerFrame {
 		variables = null;
 	}
 	
-	public CompilerFrame(CompilerFrame parent) throws IOException {
+	private CompilerFrame(CompilerFrame parent) throws IOException {
 		variables = new ArrayList<>();
 		this.parent = parent;
 		this.id = JasminUtils.counter.getAndIncrement();

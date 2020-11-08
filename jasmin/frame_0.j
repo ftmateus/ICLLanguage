@@ -3,7 +3,7 @@
 .super java/lang/Object
 .implements frame
 
-.field public x I
+.field public n I
 
 .method public <init>()V
 	aload_0
