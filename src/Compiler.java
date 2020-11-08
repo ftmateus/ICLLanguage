@@ -15,6 +15,11 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.lang.ProcessBuilder.Redirect;
 
+import static com.SystemUtils.getProcessOutput;
+import static com.SystemUtils.runProcessAndWait;
+import static com.SystemUtils.SLASH;
+import static com.SystemUtils.OS;
+
 public class Compiler {
 
 	public static final String BIN_FILES_FOLDER = "comp"+SystemUtils.SLASH;
@@ -24,30 +29,30 @@ public class Compiler {
 		Parser parser = new Parser(stream);
 		ASTNode exp;
 
-		String jasmin_path = "src" + SystemUtils.SLASH + "jasmin" + SystemUtils.SLASH;
+		String jasmin_path = "src" + SLASH + "jasmin" + SLASH;
 
 		try {
 			CodeBlock c = new CodeBlock(jasmin_path);
 
 			exp = parser.Start();
 
-			SystemUtils.debug.println(SystemUtils.OS);
-			SystemUtils.debug.println(SystemUtils.SLASH);
+			SystemUtils.debug.println(OS);
+			SystemUtils.debug.println(SLASH);
 			
-			String deleteCMD = SystemUtils.OS.contains("Windows") ? "del" : "rm";
+			String deleteCMD = OS.contains("Windows") ? "del" : "rm";
 
-			SystemUtils.runProcessAndWait(deleteCMD + " " + jasmin_path + "frame_*", true);
-			SystemUtils.runProcessAndWait(deleteCMD + " " + BIN_FILES_FOLDER+ "*.class", true);
+			runProcessAndWait(deleteCMD + " " + jasmin_path + "frame_*", true);
+			runProcessAndWait(deleteCMD + " " + BIN_FILES_FOLDER+ "*.class", true);
 
 			exp.compile(c, new CompilerFrame());
 			c.finish();
 
-			SystemUtils.runProcessAndWait("java -jar " + jasmin_path + "jasmin.jar -d " + BIN_FILES_FOLDER + " " + 
+			runProcessAndWait("java -jar " + jasmin_path + "jasmin.jar -d " + BIN_FILES_FOLDER + " " + 
 		 			jasmin_path + "/*.j", true);
 
-			Process process = SystemUtils.runProcessAndWait("java -cp comp main", false);
+			Process process = runProcessAndWait("java -cp comp main", false);
 
-			String res = SystemUtils.getProcessOutput(process);
+			String res = getProcessOutput(process);
 			System.out.println("Result > " + res);
 
 		} catch (Exception e) {
