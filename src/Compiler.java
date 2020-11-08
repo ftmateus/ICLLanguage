@@ -19,7 +19,11 @@ public class Compiler {
 	public static String terminal = "/bin/bash";
 	public static String terminal_options = "-c";
 
-	public static final String BIN_FILES_FOLDER = "comp";
+	public static final String SLASH = System.getProperty("file.separator");
+
+	public static final String BIN_FILES_FOLDER = "comp"+SLASH;
+
+	
 
 	private static final PrintStream debug;
 
@@ -46,16 +50,19 @@ public class Compiler {
 			terminal_options = "/C";
 		}
 		
-		String jasmin_path = isEclipse() ? "src/jasmin/" : "jasmin/";
+		String jasmin_path = "src" + SLASH + "jasmin" + SLASH;
 
 		try {
 			CodeBlock c = new CodeBlock(jasmin_path);
 
 			exp = parser.Start();
 
-			String deleteCMD = OS.equals("Windows") ? "del" : "rm";
-			runProcessAndWait(deleteCMD + " " + jasmin_path + "frame_*.j", true);
-			runProcessAndWait(deleteCMD + " comp/*.class", true);
+			debug.println(OS);
+			debug.println(SLASH);
+			
+			String deleteCMD = OS.contains("Windows") ? "del" : "rm";
+			runProcessAndWait(deleteCMD + " " + jasmin_path + "frame_*", true);
+			runProcessAndWait(deleteCMD + " " + BIN_FILES_FOLDER+ "*.class", true);
 
 			exp.compile(c, new CompilerFrame());
 			c.finish();
@@ -71,10 +78,6 @@ public class Compiler {
 		} catch (Exception e) {
 			System.err.println("Syntax Error!" + e.toString());
 		}
-	}
-
-	public static boolean isEclipse() {
-	    return System.getProperty("java.class.path").toLowerCase().contains("eclipse");
 	}
 
 	public static String getProcessOutput(Process process) throws IOException

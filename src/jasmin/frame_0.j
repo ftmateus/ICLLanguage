@@ -1,10 +1,9 @@
-.source frame_2.j
-.class public frame_2
+.source frame_0.j
+.class public frame_0
 .super java/lang/Object
 .implements frame
 
-.field public SL Lframe_1;
-.field public z I
+.field public n I
 
 .method public <init>()V
 	aload_0
