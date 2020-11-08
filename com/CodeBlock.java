@@ -6,20 +6,14 @@ import java.io.IOException;
 
 public class CodeBlock {
 
-	public static String location = "src/jasmin/";
+	protected static String location;
 	
 	private FileWriter main;
 	
-	public CodeBlock(String loc) throws IOException
-	{
+	public CodeBlock(String loc) throws IOException {
 		location = loc;
 		main = new FileWriter(location + "main.j", false);	
 		init();
-	}
-
-	public CodeBlock() throws IOException 
-	{
-		this("src/jasmin/");
 	}
 	
 	private void init() throws IOException {

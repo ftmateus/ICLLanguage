@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class JasminUtils {
 
-	public static Integer counter = 0;
+	public static int counter = 0;
 	
 	public static void initMethod(FileWriter main) throws IOException {
 		main.write("\n\n.method public <init>()V");

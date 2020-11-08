@@ -10,30 +10,22 @@ public class Environment {
 
 	private Environment parent = null;
 	private Map<String, Integer> assoc = new HashMap<>();
-
-	private final int depth;
-
-	public Environment() 
-	{
-		this(null, 0);
+	
+	
+	public Environment() {
+		
 	}
 	
-	private Environment(Environment parent, int depth) {
-		this.depth = depth;
+	public Environment(Environment parent) {
 		this.parent = parent;
 	}
 	
 	public Environment beginScope() {
-		return new Environment(this, depth + 1);
+		return new Environment(this);
 	}
 	
 	public Environment endScope() {
 		return parent;
-	}
-
-	public int getDepth()
-	{
-		return depth;
 	}
 	
 	public void assoc(String id, Integer val) {

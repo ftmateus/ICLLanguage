@@ -108,6 +108,11 @@ public class Parser implements ParserConstants {
       t = Fact();
                          {if (true) return new ASTTimes(new ASTNum(-1), t);}
       break;
+    case PLUS:
+      jj_consume_token(PLUS);
+      t = Fact();
+                        {if (true) return t;}
+      break;
     case DECL:
       jj_consume_token(DECL);
       label_3:
@@ -158,7 +163,7 @@ public class Parser implements ParserConstants {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x600,0x600,0x1800,0x1800,0x100,0x80530,};
+      jj_la1_0 = new int[] {0x600,0x600,0x1800,0x1800,0x100,0x80730,};
    }
 
   /** Constructor with InputStream. */

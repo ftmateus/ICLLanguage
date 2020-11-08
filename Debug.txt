@@ -1,3 +1,0 @@
-Generated: comp\frame.class
-Generated: comp\frame_0.class
-Generated: comp\main.class
