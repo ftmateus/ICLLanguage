@@ -66,7 +66,7 @@ public class Compiler {
 			exp = parser.Start();
 
 			String deleteCMD = OS.equals("Windows") ? "del" : "rm";
-			runProcessAndWait(deleteCMD + " " + jasmin_path + "example.j", true);
+			runProcessAndWait(deleteCMD + " " + jasmin_path + "frame_*.j", true);
 			// && rm " + jasmin_source +" *.class"); // delete old
 
 			exp.compile(c, new CompilerFrame());
