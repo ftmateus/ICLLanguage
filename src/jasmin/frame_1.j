@@ -4,7 +4,7 @@
 .implements frame
 
 .field public SL Lframe_0;
-.field public j I
+.field public c I
 
 .method public <init>()V
 	aload_0

@@ -21,7 +21,7 @@
 	dup
 	astore_1
 	dup
-	sipush 14
+	sipush 12
 	putfield frame_0/n I
 	pop						; Frame 0 finished
 	new frame_1					; Frame 1 started
@@ -33,8 +33,8 @@
 	dup
 	astore_1
 	dup
-	sipush 16
-	putfield frame_1/j I
+	sipush 15
+	putfield frame_1/c I
 	pop						; Frame 1 finished
 	aload_1
 	checkcast frame_1
@@ -42,7 +42,7 @@
 	getfield frame_0/n I
 	aload_1
 	checkcast frame_1
-	getfield frame_1/j I
+	getfield frame_1/c I
 	imul
 	aload_1					; Next 3ll: Get parent frame [0] and store it into local var 1
 	checkcast frame_1				; Current frame stored in 1: 1
