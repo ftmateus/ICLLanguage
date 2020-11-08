@@ -52,7 +52,7 @@ public class Compiler {
 			runProcessAndWait("java -jar " + JASMIN_PATH + "jasmin.jar -d " + BIN_FILES_FOLDER + " " + 
 				JASMIN_PATH + "*.j", true);
 
-			Process process = runProcessAndWait("java -cp comp main", false);
+			Process process = runProcessAndWait("java -cp "  + BIN_FILES_FOLDER + " main", false);
 
 			String res = getProcessOutput(process);
 			System.out.println("Result > " + res);
