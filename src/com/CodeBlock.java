@@ -9,6 +9,8 @@ public class CodeBlock {
 	protected static String location;
 	
 	private FileWriter main;
+
+	private static int current_line = 1;
 	
 	public CodeBlock(String loc) throws IOException {
 		location = loc;
@@ -41,6 +43,11 @@ public class CodeBlock {
 	    main.write("\n\treturn");
 	    main.write("\n\n.end method");
 		main.close();
+	}
+
+	public void addLine() throws IOException
+	{
+		this.emit(".line " + current_line++);
 	}
 	
 	

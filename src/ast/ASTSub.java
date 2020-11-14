@@ -23,6 +23,7 @@ public class ASTSub implements ASTNode {
 
 	@Override
 	public void compile(CodeBlock c, CompilerFrame cf) throws IOException {
+		c.addLine();
 		lhs.compile(c, cf);	
 		rhs.compile(c, cf);	
 		c.emit("isub");	

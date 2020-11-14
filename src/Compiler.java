@@ -46,6 +46,7 @@ public class Compiler {
 			runProcessAndWait(deleteCMD + " " + JASMIN_PATH + "frame_*", true);
 			runProcessAndWait(deleteCMD + " " + BIN_FILES_FOLDER+ "*.class", true);
 
+			c.addLine();
 			exp.compile(c, new CompilerFrame());
 			c.finish();
 

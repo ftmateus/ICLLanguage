@@ -43,10 +43,11 @@ public class SystemUtils
     public static String getProcessOutput(Process process) throws IOException
 	{
 		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-		String line, res = null;
+		String line;
+		StringBuilder res = new StringBuilder();
 		while ((line = reader.readLine()) != null)
-			res = line;
-		return res;
+			res.append(line + "\n");
+		return res.toString();
 	}
 
 	public static Process runProcessAndWait(String cmd, boolean inheritIO) throws InterruptedException

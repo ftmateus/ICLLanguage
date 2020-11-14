@@ -22,7 +22,15 @@ public class ASTNum implements ASTNode {
 
 	@Override
 	public void compile(CodeBlock c, CompilerFrame cf) throws IOException {
-		c.emit("sipush " + val);			
+		switch (val)
+		{
+			case 0: case 1: case 2: case 3: case 4: case 5:
+				c.emit("iconst_" + val); break;
+			case -1:
+				c.emit("iconst_m1"); break;	
+			default:
+				c.emit("sipush " + val);
+		}		
 	}
 	
 }
