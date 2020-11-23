@@ -2,11 +2,9 @@ package ast;
 
 import java.io.IOException;
 
-import com.CodeBlock;
-import com.CompilerFrame;
-import com.Environment;
-
-
+import env.CodeBlock;
+import env.Coordinates;
+import env.Environment;
 
 public class ASTNum implements ASTNode {
 
@@ -16,21 +14,13 @@ public class ASTNum implements ASTNode {
 		val = n;
 	}
 	
-	public int eval(Environment env) {
+	public int eval(Environment<Integer> env) {
 		return val;
 	}
 
 	@Override
-	public void compile(CodeBlock c, CompilerFrame cf) throws IOException {
-		switch (val)
-		{
-			case 0: case 1: case 2: case 3: case 4: case 5:
-				c.emit("iconst_" + val); break;
-			case -1:
-				c.emit("iconst_m1"); break;	
-			default:
-				c.emit("sipush " + val);
-		}		
+	public void compile(CodeBlock c, Environment<Coordinates> cf) throws IOException {
+		c.emit("sipush " + val);
 	}
 	
 }

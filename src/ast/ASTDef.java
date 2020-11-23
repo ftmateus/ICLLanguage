@@ -3,10 +3,10 @@ package ast;
 import java.io.IOException;
 import java.util.List;
 
-import com.Binding;
-import com.CodeBlock;
-import com.CompilerFrame;
-import com.Environment;
+import env.Binding;
+import env.CodeBlock;
+import env.Coordinates;
+import env.Environment;
 
 
 public class ASTDef implements ASTNode {
@@ -19,8 +19,8 @@ public class ASTDef implements ASTNode {
 		this.bindings = bindings;
 	}
 	
-	public int eval(Environment e) {
-		Environment env = e.beginScope();
+	public int eval(Environment<Integer> e) {
+		Environment<Integer> env = e.beginScope();
 		int res;
 		
 		for(Binding a : bindings) {
@@ -35,26 +35,41 @@ public class ASTDef implements ASTNode {
 	}
 
 	@Override
-	public void compile(CodeBlock c, CompilerFrame cf) throws IOException {
-		CompilerFrame cf1 = cf.beginFrame();
+	public void compile(CodeBlock c, Environment<Coordinates> env) throws IOException {
+		Environment<Coordinates> newEnv = env.beginScope();
 		
-		c.emit(cf1.createFrame()); //save SL e astore
-		
-		Binding first = bindings.remove(0);
-		first.getExp().compile(c, cf1);
-		c.emit(cf1.addVariable(first.getId()));
-		for(Binding b : bindings) {
+		int frameId = c.createFrame(bindings.size());
+		Integer ancestorId = null;
+		if(env.getDepth() > 0) {
+			ancestorId = c.getAncestor();
 			c.emit("dup");
-			b.getExp().compile(c, cf1);
-			c.emit(cf1.addVariable(b.getId()));
+			c.emit("aload_1");
+			c.emit("putfield frame_" + frameId +"/SL Lframe_" + ancestorId + ";");
 		}
-		c.emit(cf1.finishFrame());
+		c.emit("dup");
+		c.emit("astore_1");
+		
+		int id = 0;
+		for (Binding b : bindings) {
+			c.emit("dup");
+			b.getExp().compile(c, newEnv);
+			c.emit("putfield frame_" + frameId + "/loc_" + id + " I");
+			Coordinates cd = new Coordinates(newEnv.getDepth(), id++);
+			newEnv.assoc(b.getId(), cd);
+		}
+		c.emit("pop\t\t\t\t\t\t\t\t; Frame " + frameId + " finished");
+		
+		body.compile(c, newEnv);
+		
+		env.endScope();
+		c.finishFrame();
 
-		body.compile(c, cf1);
-		c.emit(cf1.reset());
-
+		if (ancestorId != null) {
+			c.emit("aload_1\t\t\t\t\t\t\t; Leave nested frame");
+			c.emit("getfield frame_" + frameId + "/SL Lframe_" + ancestorId + ";");
+			c.emit("astore_1");
+		}
+		
 	}
-
-
 
 }

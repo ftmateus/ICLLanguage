@@ -2,15 +2,15 @@ package ast;
 
 import java.io.IOException;
 
-import com.CodeBlock;
-import com.CompilerFrame;
-import com.Environment;
+import env.CodeBlock;
+import env.Coordinates;
+import env.Environment;
 
 public interface ASTNode {
 
-    int eval(Environment env);
+    int eval(Environment<Integer> env);
     
-    void compile(CodeBlock c, CompilerFrame cf) throws IOException;
+    void compile(CodeBlock c, Environment<Coordinates> cf) throws IOException;
 	
 }
 

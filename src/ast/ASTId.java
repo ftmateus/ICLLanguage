@@ -3,9 +3,9 @@ package ast;
 import java.io.IOException;
 import java.util.List;
 
-import com.CodeBlock;
-import com.CompilerFrame;
-import com.Environment;
+import env.CodeBlock;
+import env.Coordinates;
+import env.Environment;
 
 public class ASTId implements ASTNode {
 
@@ -16,25 +16,27 @@ public class ASTId implements ASTNode {
 	}
 	
 	@Override
-	public int eval(Environment env) {
+	public int eval(Environment<Integer> env) {
 		return env.find(id);
 	}
 
 
 	@Override
-	public void compile(CodeBlock c, CompilerFrame cf) throws IOException {
-		c.emit("aload_1");
+	public void compile(CodeBlock c, Environment<Coordinates> cf) throws IOException {
+		c.emit("aload_1\t\t\t\t\t\t\t; Get " + id + " variable");
 		
-		List<Integer> levels = cf.findLevels(id);
+		Coordinates cd = cf.find(id);
+		int levels = cf.getDepth() - cd.getDepth();
 		
-		int current = levels.remove(0); 
-		c.emit("checkcast frame_" + current);
-		while(!levels.isEmpty()) {
-			int level = levels.remove(0);
-			c.emit("getfield frame_" + current + "/SL Lframe_" + level + ";");
-			current = level;
+		List<Integer> ancestors = c.getAncestors(levels + 1);
+		int current = ancestors.remove(0);
+		for(int i = 0; i < levels; i++) {
+			int next = ancestors.remove(0);
+			c.emit("getfield frame_" +  current + "/SL Lframe_" + next + ";");
+			current = next;
 		}
-		c.emit("getfield frame_" + current + "/" + id + " I");
+		
+		c.emit("getfield frame_"+ current + "/loc_" + cd.getId() + " I");
 	}
 
 }

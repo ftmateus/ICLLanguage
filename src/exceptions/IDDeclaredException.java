@@ -1,5 +1,4 @@
 package exceptions;
-import java.lang.RuntimeException;
 
 public class IDDeclaredException extends SyntaxException {
 

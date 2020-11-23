@@ -3,7 +3,7 @@ PARSER_BEGIN(Parser)
 package parser;
 
 import ast.*;
-import com.*;
+import env.*;
 import java.util.ArrayList;
 import java.util.List;
 

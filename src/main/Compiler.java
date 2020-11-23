@@ -1,33 +1,29 @@
-import com.CodeBlock;
-import com.CompilerFrame;
-import com.SystemUtils;
+package main;
+
+import env.CodeBlock;
+import env.Coordinates;
+import env.Environment;
 
 import ast.ASTNode;
 import exceptions.SyntaxException;
 import parser.ParseException;
 import parser.Parser;
 
-import java.io.BufferedReader;
-import java.io.File;
+import static utils.JasminUtils.JASMIN_PATH;
+import static utils.SystemUtils.OS_NAME;
+import static utils.SystemUtils.OS_SLASH;
+import static utils.SystemUtils.debug;
+import static utils.SystemUtils.getProcessOutput;
+import static utils.SystemUtils.runProcessAndWait;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.lang.ProcessBuilder.Redirect;
-
-import static com.SystemUtils.getProcessOutput;
-import static com.SystemUtils.runProcessAndWait;
-import static com.SystemUtils.OS_SLASH;
-import static com.SystemUtils.OS_NAME;
-import static com.SystemUtils.debug;
-import static com.JasminUtils.JASMIN_PATH;
 
 public class Compiler {
 
-	public static final String BIN_FILES_FOLDER = "comp"+ OS_SLASH;
-
+	public static final String BIN_FILES_FOLDER = "bin"+ OS_SLASH + "jasmin" + OS_SLASH;
+	
 	public static void main(String args[]) throws FileNotFoundException {
 		InputStream stream = args.length >= 1 ? new FileInputStream(args[0]) : System.in;
 		Parser parser = new Parser(stream);
@@ -46,8 +42,7 @@ public class Compiler {
 			runProcessAndWait(deleteCMD + " " + JASMIN_PATH + "frame_*", true);
 			runProcessAndWait(deleteCMD + " " + BIN_FILES_FOLDER+ "*.class", true);
 
-			c.addLine();
-			exp.compile(c, new CompilerFrame());
+			exp.compile(c, new Environment<Coordinates>());
 			c.finish();
 
 			runProcessAndWait("java -jar " + JASMIN_PATH + "jasmin.jar -d " + BIN_FILES_FOLDER + " " + 

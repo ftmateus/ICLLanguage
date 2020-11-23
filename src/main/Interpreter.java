@@ -1,5 +1,6 @@
+package main;
 
-import com.Environment;
+import env.Environment;
 
 import ast.ASTNode;
 import exceptions.SyntaxException;
@@ -15,7 +16,7 @@ public class Interpreter {
 
     	while (true) {
       		try{
-      		  	Environment env = new Environment();
+      		  	Environment<Integer> env = new Environment<Integer>();
         		exp = parser.Start();
         		System.out.println("Result > " + exp.eval(env));
       		}
