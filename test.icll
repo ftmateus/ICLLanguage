@@ -7,6 +7,15 @@ def fact(n:int):int =
        x := !x + 1
    end; !value
    end;;
+   
+def printToZero(n: ref int):bool =
+   print !n;
+   while !n > 0 do
+       n := !n - 1;
+       print !n
+   end;;
+  
+print(fact(5)); print fact(0);
 
-println fact(5); println fact(0);;
+printToZero(new 3);;
 
