@@ -2,12 +2,13 @@ package env;
 
 public class Coordinates {
 
-	private int depth;
-	private int id;
+	private int depth, id;
+	private String type;
 	
-	public Coordinates(int depth, int id) {
+	public Coordinates(int depth, int id, String type) {
 		this.depth = depth;
 		this.id = id;
+		this.type = type;
 	}
 	
 	public int getDepth() {
@@ -16,6 +17,10 @@ public class Coordinates {
 	
 	public int getId() {
 		return id;
+	}
+	
+	public String getType() {
+		return type;
 	}
 	
 }

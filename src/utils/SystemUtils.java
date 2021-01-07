@@ -17,6 +17,7 @@ public class SystemUtils
 	public static final String terminal_options;
 	public static final String OS_SLASH = System.getProperty("file.separator");
 	public static final String DEBUG_OUT_FILE = "Debug.txt";
+	public static final Redirect DEBUG_FILE_REDIRECT = Redirect.appendTo(new File(DEBUG_OUT_FILE));
 
 	static 
 	{
@@ -50,7 +51,7 @@ public class SystemUtils
 		return res.toString();
 	}
 
-	public static Process runProcessAndWait(String cmd, boolean inheritIO) throws InterruptedException
+	public static Process runProcessAndWait(String cmd, Redirect redirect) throws InterruptedException
     {
 		debug.println(cmd);
 		String[] bCMD = { terminal, terminal_options , cmd};
@@ -60,8 +61,7 @@ public class SystemUtils
         {
 			ProcessBuilder pb = new ProcessBuilder(bCMD);
 			pb.redirectErrorStream(true); 
-			if(inheritIO) 
-				pb.redirectOutput(Redirect.appendTo(new File(DEBUG_OUT_FILE)));
+			pb.redirectOutput(redirect);
             p = pb.start();
             p.waitFor();
         } catch(Exception ex) {

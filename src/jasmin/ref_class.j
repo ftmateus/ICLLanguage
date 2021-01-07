@@ -1,9 +1,9 @@
-.source frame_0.j
-.class public frame_0
+.source ref_class.j
+.class public ref_class
 .super java/lang/Object
-.implements frame
+.implements ref
 
-.field public loc_0 I
+.field public v Ljava/lang/Object;
 
 .method public <init>()V
 	aload_0

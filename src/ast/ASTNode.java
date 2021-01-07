@@ -5,12 +5,16 @@ import java.io.IOException;
 import env.CodeBlock;
 import env.Coordinates;
 import env.Environment;
+import types.IType;
+import values.IValue;
 
 public interface ASTNode {
 
-    int eval(Environment<Integer> env);
+    IValue eval(Environment<IValue> env);
     
-    void compile(CodeBlock c, Environment<Coordinates> cf) throws IOException;
+    void compile(CodeBlock c, Environment<Coordinates> env) throws IOException;
+
+	IType typecheck(Environment<IType> env);
 	
 }
 

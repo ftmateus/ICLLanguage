@@ -48,6 +48,4 @@ public class Environment<T> {
 		} 
 		else return v;
 	}
-	
-	
 }

@@ -2,8 +2,9 @@ package env;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
-import utils.JasminUtils;
+import utils.CompilerUtils;
 
 import java.io.FileWriter; 
 import java.io.IOException;
@@ -11,28 +12,64 @@ import java.io.IOException;
 public class CodeBlock {
 
 	private String location;
-	private FileWriter main;	
-	private List<Integer> frames;
-	private int counter;
+	private FileWriter main, functions, current;
+	private Stack<Integer> frames;
+	private int counter, labelCounter;
 	
 	public CodeBlock(String loc) throws IOException {
 		location = loc;
-		main = new FileWriter(location + "main.j", false);	
-		this.frames = new ArrayList<>();
+		main = new FileWriter(location + "main.j", false);
+		functions = new FileWriter(location + "functions.j", false);
+		current = main;
+		this.frames = new Stack<>();
 		this.counter = 0;
-		init();
+		this.labelCounter = 0;
 	}
 	
-	private void init() throws IOException {
-		JasminUtils.firstDirectives("main", main);
-		JasminUtils.initMethod(main);
+	public void initFunctions() throws IOException {
+		current = functions;
+		CompilerUtils.firstDirectives("functions", current);
+		emitF("");
 		
-		main.write("\n\n.method public static main([Ljava/lang/String;)V\n");
-		main.write("\n\t.limit locals 2");
-		main.write("\n\t.limit stack 256\n");
-		main.write("\n\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
+		emitO(".method public static printI(I)V");
+		emitF(".limit stack 2");
+		emitF("getstatic java/lang/System/out Ljava/io/PrintStream;");
+		emitF("iload_0");
+		emitF("invokestatic java/lang/String/valueOf(I)Ljava/lang/String;");
+		emitF("invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V");
+		emitF("return");
+		emitO(".end method");
+		emitF("");
+		
+		emitO(".method public static printO(Ljava/lang/Object;)V");
+		emitF(".limit stack 2");
+		emitF("getstatic java/lang/System/out Ljava/io/PrintStream;");
+		emitF("aload_0");
+		emitF("invokestatic java/lang/String/valueOf(Ljava/lang/Object;)Ljava/lang/String;");
+		emitF("invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V");
+		emitF("return");
+		emitO(".end method");
 	}
 	
+	public void finishFunctions() throws IOException {
+		current = main;
+		functions.close();
+	}
+	
+	public void initMain() throws IOException {
+		current = main;
+		CompilerUtils.firstDirectives("main", current);
+	}
+	
+	public void startMain() throws IOException {
+		CompilerUtils.initMethod(main);	
+		emitO("");
+		emitO(".method public static main([Ljava/lang/String;)V\n");
+		emitF(".limit locals 2");
+		emitF(".limit stack 256\n");
+	} 
+	
+	//pre: frames.size() >= 2
 	public int getAncestor() {
 		int size = frames.size();
 		return frames.get(size-2);
@@ -41,53 +78,68 @@ public class CodeBlock {
 	public List<Integer> getAncestors(int levels) {
 		List<Integer> ancestors = new ArrayList<Integer>();
 		int size = frames.size();
-		for(int i = 0; i < levels; i++)
+		for(int i = 0; i <= levels; i++)
 			ancestors.add( frames.get(size - 1 - i) );
 		return ancestors;
 	}
 	
-	public int createFrame(int nVariables) throws IOException {
+	public FileWriter createFrame() throws IOException {
 		int id = counter++;
-		frames.add(id);
 		Integer ancestor = null;
-		int size = frames.size();
-		if(size > 1)
-			ancestor = frames.get(size - 2);
+		if(!frames.isEmpty())
+			ancestor = frames.peek();
+		frames.push(id);
 		
-		emit("new frame_" + id + "\t\t\t\t\t\t; Frame " + id + " started");
-		emit("dup");
-		emit("invokespecial frame_" + id + "/<init>()V");
+		emitF("new frame_" + id + "\t\t\t\t\t\t\t\t\t\t\t\t; Frame " + id + " started");
+		emitF("dup");
+		emitF("invokespecial frame_" + id + "/<init>()V");
 		
 		FileWriter fw = new FileWriter(location + "frame_" + id + ".j", false);
-		JasminUtils.firstDirectives("frame_" + id, "frame", fw);
+		CompilerUtils.firstDirectives("frame_" + id, "frame", fw);
 		fw.write("\n");
 		if (ancestor != null)
 			fw.write("\n.field public SL Lframe_" + ancestor + ";");
 		
-		for(int i = 0; i < nVariables; i++)
-			fw.write("\n.field public loc_" + i + " I");
-		
-		JasminUtils.initMethod(fw);
+		return fw;
+	}
+	
+	public void emitVariableFrame(FileWriter fw, String type, int i) throws IOException {
+		fw.write("\n.field public loc_" + i + " " + type);
+	}
+	
+	public void finishFrameFile(FileWriter fw) throws IOException {
+		CompilerUtils.initMethod(fw);
 		fw.close();
-		
-		return id;
+	}
+	
+	public int getCurrentFrame() {
+		return frames.peek();
 	}
 	
 	public void finishFrame() {
-		int size = frames.size();
-		frames.remove(size - 1);
+		frames.pop();
+	}
+		
+	//emit inside function
+	public void emitF(String command) throws IOException {	
+		current.write("\n\t" + command);
 	}
 	
-	public void emit(String	command) throws IOException {	
-		main.write("\n\t" + command);
+	//emit outside function
+	public void emitO(String command) throws IOException {	
+		current.write("\n" + command);
 	}
 	
-	public void finish() throws IOException {
-		main.write("\n\n\tinvokestatic java/lang/String/valueOf(I)Ljava/lang/String;");
-	    main.write("\n\tinvokevirtual java/io/PrintStream/println(Ljava/lang/String;)V");
-	    main.write("\n\treturn");
-	    main.write("\n\n.end method");
+	public void finishMain(String t) throws IOException {
+	    emitF("return");
+	    emitF("");
+	    emitO(".end method");
 		main.close();
 	}
+	
+	public String getNewLabel() {
+		return "L"+labelCounter++;
+	}
+	
 	
 }

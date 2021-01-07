@@ -1,0 +1,12 @@
+def START:int = 1;;
+
+def fact(n:int):int =
+   def x:ref int = new START value:ref int = new START in
+   while !x <= n do
+       value := !value * !x;
+       x := !x + 1
+   end; !value
+   end;;
+
+println fact(5); println fact(0);;
+

@@ -1,0 +1,1 @@
+java -ea -cp bin main/Compiler $*

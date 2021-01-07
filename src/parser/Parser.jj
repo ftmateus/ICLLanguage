@@ -3,6 +3,11 @@ PARSER_BEGIN(Parser)
 package parser;
 
 import ast.*;
+import ast.relational.*;
+import ast.logical.*;
+import ast.arithmetic.*;
+import ast.memory.*;
+import ast.methods.*;
 import env.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,76 +21,425 @@ public class Parser {
 
 PARSER_END(Parser)
 
-SKIP:
+
+SKIP :
 {
   " "
 | "\t"
 | "\r"
+| "\n"
 }
 
-
-TOKEN: {
-  < Num: (["0"-"9"])+ >
-| < DECL: "def" >
-| < IN: "in" >
-| < END: "end" >
-| < Id: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","0"-"9"] )* >
-| < PLUS: "+" >
-| < MINUS: "-" >
-| < DIV: "/" >
-| < TIMES: "*" >
-| < ASSIGN: "=" >
-| < EQ: "==" >
-| < LE: "<=" >
-| < LT: "<" >
-| < GT: ">" >
-| < GE: " >=" >
-| < LPAR: "(" >
-| < RPAR: ")" >
-| < EL: "\n" >
-}
-
-
-ASTNode Start(): {ASTNode t;}
+TOKEN :
 {
-  t = Exp() <EL>
-  { return t;}
+  < Num : ([ "0"-"9" ])+ >
+| < DECL : "def" >
+| < IN : "in" >
+| < END : "end" >
+| < IF : "if" >
+| < THEN : "then" >
+| < ELSE : "else" >
+| < VAR : "new" >
+| < BOOL :
+    (
+      "true"
+    | "false"
+    ) >
+| < PRINT : "print" >
+| < PRINTLN : "println" >
+| < WHILE : "while" >
+| < DO : "do" >
+| < FUN : "fun" >
+| < TYPE :
+    ("ref ")*
+    (
+      "int"
+    | "bool"
+    ) >
+| < AND : "&&" >
+| < OR : "||" >
+| < NOT : "~" >
+| < Id : [ "a"-"z", "A"-"Z" ] ([ "a"-"z", "A"-"Z", "0"-"9" ])* >
+| < PLUS : "+" >
+| < REM : "%" >
+| < MINUS : "-" >
+| < DIV : "/" >
+| < TIMES : "*" >
+| < BIND : "=" >
+| < EQ : "==" >
+| < NE : "!=" >
+| < LE : "<=" >
+| < LT : "<" >
+| < GT : ">" >
+| < GE : " >=" >
+| < LPAR : "(" >
+| < RPAR : ")" >
+| < GET : "!" >
+| < ENDEXP : ";;" >
+| < SEQ : ";" >
+| < ASSIGN : ":=" >
+| < TWODOTS : ":" >
+| < COMMA : "," >
 }
 
-ASTNode Exp(): {ASTNode t1, t2; Token op;}
+ASTNode Start() :
 {
-  t1 = Term() ( (op = < MINUS > | op=< PLUS >) t2 = Term()
-  	{ if (op.kind == MINUS)
-  	    t1 = new ASTSub(t1,t2);
-  	  else t1 = new ASTPlus(t1,t2); } ) *
-  {	return t1; }
+  ASTNode t;
 }
-
-ASTNode Term(): {ASTNode t1, t2; Token op;}
 {
-	t1 = Fact() ( (op = < TIMES >|op = < DIV >) t2 = Fact()
-	{
-	  if(op.kind == TIMES)
-	  	t1 = new ASTTimes(t1,t2);
-	  else
-	  	t1 = new ASTDiv(t1,t2); } )*
-  { return t1; }
-  
+  t = Define() //<ENDEXP>
+  {
+    return t;
+  }
+| < EOF >
+  {
+    return new ASTExit();
+  }
 }
 
+ASTNode Define() :
+{
+  ASTNode t, function;
+  Token id, type;
+  List < Binding > bindings = new ArrayList < Binding > ();
+  List < Function > functions = new ArrayList < Function > ();
+  Function current;
+}
+{
+  (
+    < DECL > id = < Id >
+    (
+      < TWODOTS > type = < TYPE > < BIND > t = Seq() < ENDEXP >
+      {
+        bindings.add(new Binding(id.image, t, type.image));
+      }
+    | 
+      < LPAR >
+      {
+        current = new Function(id.image);
+      }
+      id = < Id > < TWODOTS > type = < TYPE >
+      {
+        current.addParameter(id.image, type.image);
+      }
+      (
+        < COMMA > id = < Id > < TWODOTS > type = < TYPE >
+        {
+          current.addParameter(id.image, type.image);
+        }
+      )*
+      < RPAR > < TWODOTS > type = < TYPE >
+      {
+        current.setReturnType(type.image);
+      }
+      < BIND > function = Seq() < ENDEXP >
+      {
+        current.setBody(function);
+        functions.add(current);
+      }
+    )
+  )*
+  t = Seq() < ENDEXP >
+  {
+    return new ASTGlobal(bindings, functions, t);
+  }
+}
+ASTNode Seq() :
+{
+  ASTNode t1, t2;
+}
+{
+  t1 = Assign()
+  (
+    < SEQ > t2 = Assign()
+    {
+      t1 = new ASTSeq(t1, t2);
+    }
+  )*
+  {
+    return t1;
+  }
+}
 
-ASTNode Fact(): {
-  ASTNode t, t1, t2;
+ASTNode Assign() :
+{
+  ASTNode t1, t2;
+}
+{
+  t1 = OrExp()
+  (
+    < ASSIGN > t2 = OrExp()
+    {
+      t1 = new ASTAssign(t1, t2);
+    }
+  )*
+  {
+    return t1;
+  }
+}
+
+ASTNode OrExp() :
+{
+  ASTNode t1, t2;
+  Token op;
+}
+{
+  t1 = AndExp()
+  (
+    (op = < OR >) t2 = AndExp()
+    {
+      t1 = new ASTOr(t1, t2);
+    }
+  )*
+  {
+    return t1;
+  }
+}
+
+ASTNode AndExp() :
+{
+  ASTNode t1, t2;
+  Token op;
+}
+{
+  t1 = Comp()
+  (
+    (op = < AND >) t2 = Comp()
+    {
+      t1 = new ASTAnd(t1, t2);	
+    }
+  )*
+  {
+    return t1;
+  }
+}
+
+ASTNode Comp() :
+{
+  ASTNode t1, t2;
+  Token op;
+}
+{
+  t1 = Exp()
+  (
+    (
+      op = < GT >
+    | op = < LT >
+    | op = < EQ >
+    | op = < GE >
+    | op = < LE >
+    | op = < NE >
+    )
+    t2 = Exp()
+    {
+      switch (op.kind)
+      {
+        case EQ : t1 = new ASTEq(t1, t2);
+        break;
+        case GT : t1 = new ASTGt(t1, t2);
+        break;
+        case GE : t1 = new ASTGe(t1, t2);
+        break;
+        case LT : t1 = new ASTLt(t1, t2);
+        break;
+        case LE : t1 = new ASTLe(t1, t2);
+        break;
+        case NE : t1 = new ASTNe(t1, t2);
+        break;
+      }
+    }
+  )?
+  {
+    return t1;
+  }
+}
+
+ASTNode Exp() :
+{
+  ASTNode t1, t2;
+  Token op;
+}
+{
+  t1 = Term()
+  (
+    (
+      op = < MINUS >
+    | op = < PLUS >
+    )
+    t2 = Term()
+    {
+      if (op.kind == MINUS) 
+      t1 = new ASTSub(t1, t2);
+      else t1 = new ASTPlus(t1, t2);
+    }
+  )*
+  {	
+    return t1;
+  }
+}
+
+ASTNode Term() :
+{
+  ASTNode t1, t2;
+  Token op;
+}
+{
+  t1 = Fact()
+  (
+    (
+      op = < TIMES >
+    | op = < DIV >
+    | op = < REM >
+    )
+    t2 = Fact()
+    {
+      if (op.kind == TIMES) 
+      t1 = new ASTTimes(t1, t2);
+      else if (op.kind == DIV) 
+      t1 = new ASTDiv(t1, t2);
+      else 
+      t1 = new ASTRemainder(t1, t2);
+    }
+  )*
+  {
+    return t1;
+  }
+}
+
+ASTNode Fact() :
+{
+  ASTNode t1, t;
   Token n;
-  List<Binding> bindings = new ArrayList<Binding>();
 }
 {
-  n=<Num> {return new ASTNum(Integer.parseInt(n.image)); }
-| < LPAR > t = Exp() <RPAR > { return t; }
-| < MINUS > t = Fact() { return new ASTTimes(new ASTNum(-1), t); }
-| < PLUS > t = Fact() { return t; }
-| < DECL > (n = < Id >< ASSIGN > t = Exp() { bindings.add(new Binding(n.image, t)); })+
-			< IN > t1 = Exp() < END > { return new ASTDef(bindings, t1); }
-| n = < Id > { return new ASTId(n.image); }
+  n = < Num >
+  {
+    return new ASTNum(Integer.parseInt(n.image));
+  }
+| n = < BOOL >
+  {
+    return new ASTBool(Boolean.parseBoolean(n.image));
+  }
+| n = < NOT > t = Assign()
+  {
+    return new ASTNot(t);
+  }
+| < LPAR > t = Seq() < RPAR >
+  {
+    return t;
+  }
+| < MINUS > t = Fact()
+  {
+    return new ASTTimes(new ASTNum(- 1), t);
+  }
+| < PLUS > t = Fact()
+  {
+    return t;
+  }
+| t1 = DefIn()
+  {
+    return t1;
+  }
+| t1 = IfThenElse()
+  {
+    return t1;
+  }
+| t1 = While()
+  {
+    return t1;
+  }
+| < VAR > t = Fact()
+  {
+    return new ASTVar(t);
+  }
+| < GET > t = Fact()
+  {
+    return new ASTDeref(t);
+  }
+|
+  (
+    < PRINT >
+  | < PRINTLN >
+  )
+  t = Assign()
+  {
+    return new ASTPrint(t);
+  }
+| t1 = Id()
+  {
+    return t1;
+  }
 }
 
+ASTNode DefIn() :
+{
+  ASTNode t1, t;
+  Token n, n1;
+  List < Binding > bindings = new ArrayList < Binding > ();
+}
+{
+  < DECL >
+  (
+    n = < Id > < TWODOTS > n1 = < TYPE > < BIND > t = Seq()
+    {
+      bindings.add(new Binding(n.image, t, n1.image));
+    }
+  )+
+  < IN > t1 = Seq() < END >
+  {
+    return new ASTDef(bindings, t1);
+  }
+}
+
+ASTNode IfThenElse() :
+{
+  ASTNode t1, t2, t;
+  Token n;
+}
+{
+  < IF > t = Seq() < THEN > t1 = Seq() < ELSE > t2 = Seq() < END >
+  {
+    return new ASTIf(t, t1, t2);
+  }
+}
+
+ASTNode While() :
+{
+  ASTNode t1, t;
+  Token n;
+}
+{
+  < WHILE > t = Seq() < DO > t1 = Seq() < END >
+  {
+    return new ASTWhile(t, t1);
+  }
+}
+
+ASTNode Id() :
+{
+  ASTNode t;
+  Token id;
+  List < ASTNode > nodes = new ArrayList < ASTNode > ();
+}
+{
+  id = < Id >
+  (
+    < LPAR > t = Seq()
+    {
+      nodes.add(t);
+    }
+    (
+      < COMMA > t = Seq()
+      {
+        nodes.add(t);
+      }
+    )*
+    < RPAR >
+    {
+      return new ASTFun(id.image, nodes);
+    }
+  )*
+  {
+    return new ASTId(id.image);
+  }
+}

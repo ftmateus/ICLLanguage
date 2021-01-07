@@ -4,12 +4,13 @@ import ast.ASTNode;
 
 public class Binding {
 	
-	private String id;
+	private String id, type;
 	private ASTNode node;
 	
-	public Binding(String id, ASTNode node) {
+	public Binding(String id, ASTNode node, String type) {
 		this.id = id;
 		this.node = node;
+		this.type = type;
 	}
 
 	public String getId() {
@@ -18,6 +19,10 @@ public class Binding {
 	
 	public ASTNode getExp() {
 		return node;
+	}
+	
+	public String getType() {
+		return type;
 	}
 	
 }

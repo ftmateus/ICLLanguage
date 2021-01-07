@@ -3,7 +3,7 @@ package utils;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class JasminUtils {
+public class CompilerUtils {
 
 	public static final String JASMIN_PATH = "src" + SystemUtils.OS_SLASH + "jasmin" + SystemUtils.OS_SLASH;
 	

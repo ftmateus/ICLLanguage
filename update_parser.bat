@@ -2,6 +2,8 @@
 
 cd src/parser
 
+del *.java
+
 call javacc Parser.jj
 
 cd ../..
